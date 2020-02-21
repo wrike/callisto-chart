@@ -1,0 +1,27 @@
+{{- if and ( .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" ) ( .Values.nginx.serviceMonitor.enabled )  }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "callisto.name" . }}-nginx
+  labels:
+    app: {{ template "callisto.name" . }}-nginx
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "callisto.name" . }}-nginx
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: nginx-exporter
+    path: "/metrics"
+  {{- if .Values.nginx.serviceMonitor.metricRelabelings }}
+  metricRelabelings:
+  {{ toYaml .Values.nginx.serviceMonitor.metricRelabelings | nindent 4 }}
+  {{- end }}
+  {{- if .Values.nginx.serviceMonitor.relabelings }}
+  relabelings:
+  {{ toYaml .Values.nginx.serviceMonitor.relabelings | nindent 4 }}
+  {{- end }}
+{{- end }}

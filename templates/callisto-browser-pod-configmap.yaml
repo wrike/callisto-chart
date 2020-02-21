@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "callisto.name" . }}-browser-pod-configmap
+  labels:
+    app: {{ template "callisto.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+{{ tpl (.Files.Glob "files/browser-pod-manifest.yaml").AsConfig . | indent 2 }}

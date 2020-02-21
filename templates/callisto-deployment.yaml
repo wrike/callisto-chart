@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "callisto.name" . }}
+  labels:
+    app: {{ template "callisto.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.callisto.replicas }}
+  minReadySeconds: {{ .Values.callisto.minReadySeconds }}
+  selector:
+    matchLabels:
+      app: {{ template "callisto.name" . }}
+  strategy:
+  {{- if .Values.callisto.strategy }}
+  {{ toYaml .Values.callisto.strategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "callisto.name" . }}
+        release: "{{ .Release.Name }}"
+        instance_id: {{ .Values.instanceID | quote }}
+        {{- if .Values.callisto.podLabels }}
+        {{ toYaml.Values.callisto.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ tpl (.Files.Get "files/browser-pod-manifest.yaml") . | sha256sum }}
+        {{- if .Values.callisto.podAnnotations  }}
+        {{ toYaml.Values.callisto.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+      - image: {{ template "callisto.image" . }}
+        name: {{ .Chart.Name }}
+        imagePullPolicy: {{ .Values.callisto.image.pullPolicy }}
+        ports:
+        - containerPort: 8080
+        resources:
+        {{ toYaml .Values.callisto.resources | nindent 10 }}
+        env:
+        {{- if eq .Values.callisto.browser.name "chrome" }}
+        - name: POD_IMAGE
+          value: {{ .Values.callisto.browser.chromeImage | quote }}
+        {{- else if eq .Values.callisto.browser.name "firefox" }}
+        - name: POD_IMAGE
+          value: {{ .Values.callisto.browser.firefoxImage | quote }}
+        - name: POD_WEBDRIVER_PATH
+          value: {{ .Values.callisto.browser.firefoxWebdriverPath | quote }}
+        {{- else if eq .Values.callisto.browser.name "electron" }}
+        - name: POD_IMAGE
+          value: {{ .Values.callisto.browser.electronImage | quote }}
+        {{- end }}
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: LOG_LEVEL
+          value: {{ .Values.callisto.logLevel | quote }}
+        - name: GRAYLOG_HOST
+          value: {{ .Values.callisto.graylogHost | quote }}
+        - name: INSTANCE_ID
+          value: {{ .Values.instanceID | quote }}
+        - name: SENTRY_DSN
+          value: {{ .Values.callisto.sentryDSN | quote }}
+        - name: POD_MANIFEST
+          value: "/etc/callisto/browser-pod-manifest.yaml"
+        volumeMounts:
+          - name: browser-pod-manifest
+            mountPath: /etc/callisto
+      {{- if .Values.rbac.create }}
+      serviceAccountName: {{ template "callisto.name" . }}
+      {{- else }}
+      serviceAccountName: {{ .Values.callisto.serviceAccountName }}
+      {{- end }}
+      affinity:
+      {{- if .Values.callisto.affinity }}
+      {{ toYaml .Values.callisto.affinity | nindent 8  }}
+      {{- end }}
+      tolerations:
+      {{- if .Values.callisto.tolerations }}
+      {{ toYaml .Values.callisto.tolerations | nindent 8  }}
+      {{- end }}
+      volumes:
+      {{- with .Values.callisto.volumes }}
+      {{ toYaml .Values.callisto.volumes | nindent 8 }}
+      {{- end }}
+        - name: browser-pod-manifest
+          configMap:
+            name: {{ template "callisto.name" . }}-browser-pod-configmap

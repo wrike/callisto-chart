@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: 'browser-'
+  labels:
+    instance_id: {{ .Values.instanceID | quote }}
+  annotations:
+    janitor/ttl: "20m"
+spec:
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 0
+{{- if eq .Values.callisto.browser.name "electron" }}
+{{- toYaml .Values.electron.volumes | nindent 6 }}
+  initContainers:
+{{- toYaml .Values.electron.initContainers | nindent 4 }}
+{{- end }}
+  containers:
+    - name: browser
+{{- if eq .Values.callisto.browser.name "chrome" }}
+      image: {{ .Values.callisto.browser.chromeImage }}
+{{- else if eq .Values.callisto.browser.name "firefox" }}
+      image: {{ .Values.callisto.browser.firefoxImage }}
+{{- else if eq .Values.callisto.browser.name "electron" }}
+      image: {{ .Values.callisto.browser.electronImage }}
+{{- end }}
+      resources: {{- toYaml .Values.callisto.browser.resources | nindent 10 }}
+      readinessProbe:
+        httpGet:
+          path: '/status'
+          port: 4444
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      env:
+{{- toYaml .Values.callisto.browser.env | nindent 10 }}
+{{- if eq true .Values.callisto.browser.squid.enabled }}
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: HTTP_PROXY
+          value: "http://$(HOST_IP):3128"
+        - name: HTTPS_PROXY
+          value: "http://$(HOST_IP):3128"
+{{- end }}
+      volumeMounts:
+        - mountPath: '/dev/shm'
+          name: dshm
+{{- if eq .Values.callisto.browser.name "electron" }}
+      {{- toYaml .Values.electron.volumeMounts | nindent 10 }}
+{{- end }}
+{{- if .Values.callisto.browser.socat.enabled }}
+    - name: socat
+      image: {{ .Values.callisto.browser.socat.image }}
+      command: ["socat", "tcp-listen:9221,fork", "tcp:localhost:9222"]
+{{- end }}
+{{- if .Values.callisto.browser.affinity }}
+  affinity: {{- toYaml .Values.callisto.browser.affinity | nindent 6 }}
+{{- end }}
+{{- if .Values.callisto.browser.tolerations }}
+  tolerations: {{- toYaml .Values.callisto.browser.tolerations | nindent 6 }}
+{{- end }}

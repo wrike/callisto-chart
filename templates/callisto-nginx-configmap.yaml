@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "callisto.name" . }}-nginx-configmap
+  labels:
+    app: {{ template "callisto.name" . }}-nginx
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+{{ tpl (.Files.Glob "files/callisto-nginx.conf").AsConfig . | indent 2 }}

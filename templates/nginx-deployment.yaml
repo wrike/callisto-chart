@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "callisto.name" . }}-nginx
+  labels:
+    app: {{ template "callisto.name" . }}-nginx
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.nginx.replicas }}
+  minReadySeconds: {{ .Values.nginx.minReadySeconds }}
+  selector:
+    matchLabels:
+      app: {{ template "callisto.name" . }}-nginx
+  strategy:
+  {{- if .Values.nginx.strategy }}
+  {{ toYaml .Values.nginx.strategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "callisto.name" . }}-nginx
+        release: "{{ .Release.Name }}"
+        instance_id: {{ .Values.instanceID | quote }}
+        {{- if .Values.nginx.podLabels }}
+        {{ toYaml.Values.nginx.podLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ tpl (.Files.Get "files/callisto-nginx.conf") . | sha256sum }}
+        {{- if .Values.nginx.podAnnotations  }}
+        {{ toYaml.Values.nginx.podAnnotations | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+      - image: {{ template "nginx.image" . }}
+        name: nginx
+        imagePullPolicy: {{ .Values.nginx.image.pullPolicy }}
+        ports:
+        - containerPort: 80
+        resources:
+{{ toYaml .Values.nginx.resources | indent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.nginx.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.nginx.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.nginx.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.nginx.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.nginx.readinessProbe.failureThreshold }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.nginx.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.nginx.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.nginx.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.nginx.livenessProbe.successThreshold }}
+          failureThreshold: {{ .Values.nginx.livenessProbe.failureThreshold }}
+        volumeMounts:
+          - name: callisto-nginx-config
+            mountPath: /etc/nginx/conf.d
+      - image: {{ template "nginx.prometheusExporter.image" . }}
+        name: nginx-prometheus-exporter
+        imagePullPolicy: {{ .Values.nginx.prometheusExporter.image.pullPolicy }}
+        ports:
+          - containerPort: 9113
+        args: ["-nginx.scrape-uri=http://127.0.0.1/stub_status"]
+      affinity:
+{{- if .Values.nginx.affinity }}
+{{ toYaml .Values.nginx.affinity | indent 8  }}
+{{- end }}
+      tolerations:
+{{- if .Values.nginx.tolerations }}
+{{ toYaml .Values.nginx.tolerations | indent 8  }}
+{{- end }}
+      volumes:
+      {{- with .Values.nginx.volumes }}
+      {{ toYaml .Values.nginx.volumes | indent 8 }}
+      {{- end }}
+      volumes:
+        - name: callisto-nginx-config
+          configMap:
+            name: {{ template "callisto.name" . }}-nginx-configmap

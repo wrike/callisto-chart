@@ -1,0 +1,144 @@
+# Unique ID of callisto instance
+instanceID: 'unknown'
+
+rbac:
+  create: true
+
+callisto:
+  image:
+    registry: docker.io
+    repository: wrike/callisto
+    tag: 1.0.0
+    pullPolicy: Always
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  replicas: 1
+  minReadySeconds: 15
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+  serviceAccountName: default
+  volumes: {}
+  logLevel: "INFO"
+  graylogHost: ""
+  sentryDSN: ""
+  podLabels: {}
+  podAnnotations: {}
+  affinity: {}
+  tolerations: {}
+  service:
+    type: "ClusterIP"
+  serviceMonitor:
+    enabled: false
+    metricRelabelings: {}
+    relabelings: {}
+
+  browser:
+    name: "chrome"
+    chromeImage: "selenoid/vnc:chrome_80.0"
+    firefoxImage: "selenoid/vnc:firefox_73.0"
+    firefoxWebdriverPath: "/wd/hub"  # because selenoid runs inside firefox container
+    squid:
+      enabled: false  # squid proxy for browser-pods
+    socat:
+      enabled: false
+      image: "alpine/socat:1.7.3.3-r1"
+    affinity: {}
+    resources: {}
+    tolerations: {}
+    env:
+    - name: TZ
+      value: 'UTC'
+    - name: ENABLE_VNC
+      value: 'true'
+
+nginx:
+  image:
+    registry:
+    repository: nginx
+    tag: '1.17.2-alpine'
+    pullPolicy: Always
+
+  prometheusExporter:
+    image:
+      registry:
+      repository: nginx/nginx-prometheus-exporter
+      tag: '0.4.0'
+      pullPolicy: Always
+  replicas: 1
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "128Mi"
+  livenessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  volumes: {}
+  affinity: {}
+  tolerations: {}
+  service:
+    type: "ClusterIP"
+  serviceMonitor:
+    enabled: false
+    metricRelabelings: {}
+    relabelings: {}
+
+selenoidUi:
+  image:
+    registry:
+    repository: aerokube/selenoid-ui
+    tag: '1.9.1'
+    pullPolicy: Always
+  replicas: 1
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: "512Mi"
+    requests:
+      cpu: "0.25"
+      memory: "64Mi"
+  service:
+    type: "ClusterIP"
+  volumes: {}
+  affinity: {}
+  tolerations: {}
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+  path: /
+  hosts:
+  - callisto.local
+  tls: []

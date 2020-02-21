@@ -1,0 +1,16 @@
+{{ if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: {{ template "callisto.name" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-install
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get", "list", "watch"]
+{{ end }}

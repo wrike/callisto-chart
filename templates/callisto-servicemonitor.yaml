@@ -1,0 +1,28 @@
+{{- if and ( .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" ) ( .Values.callisto.serviceMonitor.enabled )  }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "callisto.name" . }}
+  labels:
+    app: {{ template "callisto.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "callisto.name" . }}
+      release: {{ .Release.Name }}
+  endpoints:
+  - port: callisto
+    interval: 30s
+    path: "/metrics"
+  {{- if .Values.callisto.serviceMonitor.metricRelabelings }}
+  metricRelabelings:
+  {{ toYaml .Values.callisto.serviceMonitor.metricRelabelings | nindent 4 }}
+  {{- end }}
+  {{- if .Values.callisto.serviceMonitor.relabelings }}
+  relabelings:
+  {{ toYaml .Values.callisto.serviceMonitor.relabelings | nindent 4 }}
+  {{- end }}
+{{- end }}

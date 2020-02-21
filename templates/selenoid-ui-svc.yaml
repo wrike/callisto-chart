@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "callisto.name" . }}-selenoid-ui
+  labels:
+    app: {{ template "callisto.name" . }}-selenoid-ui
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  type: {{ .Values.selenoidUi.service.type }}
+  {{- if not .Values.selenoidUi.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.selenoidUi.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+  - name: selenoid-ui
+    port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: {{ template "callisto.name" . }}-selenoid-ui
+    release: {{ .Release.Name }}

@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "callisto.name" . }}-nginx
+  labels:
+    app: {{ template "callisto.name" . }}-nginx
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  type: {{ .Values.nginx.service.type }}
+  {{- if not .Values.nginx.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.nginx.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  - name: nginx-exporter
+    port: 9113
+    protocol: TCP
+    targetPort: 9113
+  selector:
+    app: {{ template "callisto.name" . }}-nginx
+    release: {{ .Release.Name }}
