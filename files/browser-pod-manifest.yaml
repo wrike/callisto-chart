@@ -62,3 +62,6 @@ spec:
 {{- if .Values.callisto.browser.tolerations }}
   tolerations: {{- toYaml .Values.callisto.browser.tolerations | nindent 6 }}
 {{- end }}
+{{- if .Values.callisto.browser.hostAliases }}
+  hostAliases: {{- toYaml .Values.callisto.browser.hostAliases | nindent 6 }}
+{{- end }}
