@@ -53,6 +53,7 @@ callisto:
     affinity: {}
     resources: {}
     tolerations: {}
+    hostAliases: []
     env:
     - name: TZ
       value: 'UTC'
