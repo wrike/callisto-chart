@@ -49,6 +49,9 @@ spec:
           value: {{ .Values.callisto.browser.firefoxImage | quote }}
         - name: POD_WEBDRIVER_PATH
           value: {{ .Values.callisto.browser.firefoxWebdriverPath | quote }}
+        {{- else if eq .Values.callisto.browser.name "edge" }}
+        - name: POD_IMAGE
+          value: {{ .Values.callisto.browser.edgeImage | quote }}
         {{- else if eq .Values.callisto.browser.name "electron" }}
         - name: POD_IMAGE
           value: {{ .Values.callisto.browser.electronImage | quote }}

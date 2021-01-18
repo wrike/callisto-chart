@@ -44,6 +44,7 @@ callisto:
     name: "chrome"
     chromeImage: "selenoid/vnc:chrome_80.0"
     firefoxImage: "selenoid/vnc:firefox_82.0"
+    edgeImage: "browsers/edge:88.0"
     firefoxWebdriverPath: "/wd/hub"  # because selenoid runs inside firefox container
     squid:
       enabled: false  # squid proxy for browser-pods

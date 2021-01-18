@@ -23,6 +23,8 @@ spec:
       image: {{ .Values.callisto.browser.chromeImage }}
 {{- else if eq .Values.callisto.browser.name "firefox" }}
       image: {{ .Values.callisto.browser.firefoxImage }}
+{{- else if eq .Values.callisto.browser.name "edge" }}
+      image: {{ .Values.callisto.browser.edgeImage }}
 {{- else if eq .Values.callisto.browser.name "electron" }}
       image: {{ .Values.callisto.browser.electronImage }}
 {{- end }}
