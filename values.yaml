@@ -106,6 +106,7 @@ nginx:
     enabled: false
     metricRelabelings: {}
     relabelings: {}
+  resolver: kube-dns.kube-system.svc.cluster.local
 
 selenoidUi:
   image:
