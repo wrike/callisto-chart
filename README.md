@@ -46,10 +46,10 @@ See [this repository](https://github.com/wrike/callisto) for the source code.
 
 ### How to run as helm release
 
-1. To install a chart with the release name callisto:
+1. To install the chart with the release name callisto:
 
 `kubectl create ns callisto && helm install callisto .`
 
-2. To uninstall a release and clean up all related stuff:
+2. To uninstall the release and clean up all related stuff:
 
 `helm delete --no-hooks callisto && kubectl delete ns callisto`
