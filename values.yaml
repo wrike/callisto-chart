@@ -42,9 +42,9 @@ callisto:
 
   browser:
     name: "chrome"
-    chromeImage: "selenoid/vnc:chrome_80.0"
-    firefoxImage: "selenoid/vnc:firefox_82.0"
-    edgeImage: "browsers/edge:88.0"
+    chromeImage: "selenoid/vnc:chrome_101.0"
+    firefoxImage: "selenoid/vnc:firefox_99.0"
+    edgeImage: "browsers/edge:100.0"
     firefoxWebdriverPath: "/wd/hub"  # because selenoid runs inside firefox container
     squid:
       enabled: false  # squid proxy for browser-pods
@@ -112,8 +112,8 @@ selenoidUi:
   image:
     registry:
     repository: aerokube/selenoid-ui
-    tag: '1.9.1'
-    pullPolicy: Always
+    tag: '1.10.4'
+    pullPolicy: IfNotPresent
   replicas: 1
   minReadySeconds: 15
   strategy:
