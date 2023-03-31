@@ -81,7 +81,6 @@ spec:
       {{- with .Values.nginx.volumes }}
       {{ toYaml .Values.nginx.volumes | indent 8 }}
       {{- end }}
-      volumes:
         - name: callisto-nginx-config
           configMap:
             name: {{ template "callisto.name" . }}-nginx-configmap
