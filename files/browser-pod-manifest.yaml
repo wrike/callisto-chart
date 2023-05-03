@@ -4,8 +4,10 @@ metadata:
   generateName: 'browser-'
   labels:
     instance_id: {{ .Values.instanceID | quote }}
+  {{- if .Values.callisto.browser.annotations }}
   annotations:
-    janitor/ttl: "20m"
+    {{- toYaml .Values.callisto.browser.annotations | nindent 6 }}
+  {{- end }}
 spec:
   volumes:
     - name: dshm
