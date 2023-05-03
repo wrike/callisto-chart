@@ -99,6 +99,7 @@ nginx:
     successThreshold: 1
     failureThreshold: 3
   volumes: {}
+  podAnnotations: {}
   affinity: {}
   tolerations: {}
   service:

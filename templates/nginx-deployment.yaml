@@ -24,12 +24,12 @@ spec:
         release: "{{ .Release.Name }}"
         instance_id: {{ .Values.instanceID | quote }}
         {{- if .Values.nginx.podLabels }}
-        {{ toYaml.Values.nginx.podLabels | nindent 8 }}
+        {{ toYaml .Values.nginx.podLabels | nindent 8 }}
         {{- end }}
       annotations:
         checksum/config: {{ tpl (.Files.Get "files/callisto-nginx.conf") . | sha256sum }}
         {{- if .Values.nginx.podAnnotations  }}
-        {{ toYaml.Values.nginx.podAnnotations | nindent 8 }}
+        {{ toYaml .Values.nginx.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
       containers:
