@@ -51,6 +51,7 @@ callisto:
     socat:
       enabled: false
       image: "alpine/socat:1.7.3.3-r1"
+    annotations: {}
     affinity: {}
     resources: {}
     tolerations: {}
@@ -98,6 +99,7 @@ nginx:
     successThreshold: 1
     failureThreshold: 3
   volumes: {}
+  podAnnotations: {}
   affinity: {}
   tolerations: {}
   service:

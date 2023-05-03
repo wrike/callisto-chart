@@ -24,11 +24,11 @@ spec:
         release: "{{ .Release.Name }}"
         instance_id: {{ .Values.instanceID | quote }}
         {{- if .Values.callisto.podLabels }}
-        {{ toYaml.Values.callisto.podLabels | nindent 8 }}
+        {{ toYaml .Values.callisto.podLabels | nindent 8 }}
         {{- end }}
       annotations:
         {{- if .Values.callisto.podAnnotations  }}
-        {{ toYaml.Values.callisto.podAnnotations | nindent 8 }}
+        {{ toYaml .Values.callisto.podAnnotations | nindent 8 }}
         {{- end }}
     spec:
       containers:
