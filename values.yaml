@@ -8,7 +8,7 @@ callisto:
   image:
     registry: docker.io
     repository: wrike/callisto
-    tag: 1.0.0
+    tag: 1.1.0
     pullPolicy: Always
   strategy:
     type: RollingUpdate
