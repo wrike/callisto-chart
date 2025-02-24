@@ -75,6 +75,13 @@ nginx:
     readTimeout: 600
     maxBodySize: 1m
 
+  session:
+    connectTimeout: 30
+    sendTimeout: 30
+    readTimeout: 30
+    maxBodySize: 8m
+    requestBuffering: "off"  # disable request buffering on disk
+
   prometheusExporter:
     image:
       registry:
