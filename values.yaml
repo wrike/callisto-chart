@@ -68,6 +68,12 @@ nginx:
     repository: nginx
     tag: '1.17.2-alpine'
     pullPolicy: Always
+  
+  proxy:
+    connectTimeout: 600
+    sendTimeout: 600
+    readTimeout: 600
+    maxBodySize: 1m
 
   prometheusExporter:
     image:
