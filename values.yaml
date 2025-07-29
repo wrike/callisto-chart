@@ -37,6 +37,7 @@ callisto:
     type: "ClusterIP"
   serviceMonitor:
     enabled: false
+    apiVersion: "monitoring.coreos.com/v1"
     metricRelabelings: {}
     relabelings: {}
 
@@ -119,6 +120,7 @@ nginx:
     type: "ClusterIP"
   serviceMonitor:
     enabled: false
+    apiVersion: "monitoring.coreos.com/v1"
     metricRelabelings: {}
     relabelings: {}
   resolver: kube-dns.kube-system.svc.cluster.local
