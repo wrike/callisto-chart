@@ -60,6 +60,9 @@ spec:
       image: {{ .Values.callisto.browser.socat.image }}
       command: ["socat", "tcp-listen:9221,fork", "tcp:localhost:9222"]
 {{- end }}
+{{- if .Values.callisto.browser.sidecars }}
+{{- toYaml .Values.callisto.browser.sidecars | nindent 6 }}
+{{- end }}
 {{- if .Values.callisto.browser.affinity }}
   affinity: {{- toYaml .Values.callisto.browser.affinity | nindent 6 }}
 {{- end }}

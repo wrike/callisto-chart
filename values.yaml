@@ -57,6 +57,7 @@ callisto:
     resources: {}
     tolerations: {}
     hostAliases: []
+    sidecars: []
     env:
     - name: TZ
       value: 'UTC'
